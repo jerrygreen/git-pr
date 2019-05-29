@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -e
+
+branch=$(git symbolic-ref --short HEAD)
+if [ "$branch" == "master" ]; then echo "Can't check Pull Request. You are in \`master\` branch!"; exit 1; fi
+url=$(node -p -e 'require("./package.json").repository' 2>/dev/null)
+open ${url}/pull/${branch}
