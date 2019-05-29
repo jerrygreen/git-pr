@@ -1,0 +1,21 @@
+git-pr(1) --
+========================================
+
+SYNOPSIS
+--------
+
+git-pr [branch]
+
+`branch` -  if passed, it will create a new branch "kek" and will open a github link with suggest to create a PR. Otherwise it will open existing PR for current branch (no sense to call it from master)
+
+DESCRIPTION
+-----------
+
+A helper script for git and github to create new / open existing PR for your branches
+
+COPYRIGHT
+---------
+
+(c) 2019 Jerry Green
+
+MIT license

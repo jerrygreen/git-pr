@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -e
+
+new_branch=$1
+
+current_branch=$(git branch | grep \* | cut -d ' ' -f2)
+
+# if [ "$current_branch" == "master" ]; then echo "You should run \`${@}\` only from master branch!"; exit 1; fi
+if [ -z "$new_branch" ]; then echo 'Pass a new branch name as an argument!'; exit 1; fi
+
+set +e
+verify=$(git rev-parse --quiet --verify ${new_branch})
+set -e
+if [ ! -z "$verify" ]; then echo 'The branch already exists!'; exit 1; fi
+
+url=$(git-remote-url)
+git checkout -b $new_branch > /dev/null
+staged=$(git diff --name-only --cached)
+git reset
+git commit -n --allow-empty -m "$new_branch"
+if [ "$staged" != "" ]; then git add $staged; fi
+git push --set-upstream origin $new_branch
+open ${url}/pull/new/${new_branch}

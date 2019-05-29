@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+
+branch_arg=$1
+
+if [ -z "$branch_arg" ]; then
+  git-pr-open
+else
+  git-pr-new $1
+fi
