@@ -1,21 +1,53 @@
 #!/bin/bash
 
+new_branch=$1
+username=$(git config --global user.github)
+
 set -e
 
-new_branch=$1
-
-current_branch=$(git branch | grep \* | cut -d ' ' -f2)
-
-# if [ "$current_branch" == "master" ]; then echo "You should run \`${@}\` only from master branch!"; exit 1; fi
 if [ -z "$new_branch" ]; then echo 'Pass a new branch name as an argument!'; exit 1; fi
+
+if [ -z "$username" ]; then
+  # echo 'Please, setup your github name with the following command:'
+  # echo
+  # echo "git config --global user.github YOUR_GITHUB_USERNAME"
+  echo "Please, setup your github username, that will be used for branch names."
+  echo
+
+  while true; do
+    read -p 'Your github username: ' username
+    username=$(echo "$username" | tr '[:upper:]' '[:lower:]')
+    user=$(curl -s https://api.github.com/users/${username})
+    status=$(curl -s -o /dev/null -I -w "%{http_code}" https://api.github.com/users/${username})
+    if [ "$status" == "404" ]; then
+      echo "User not found on github, try another name."
+      continue
+    fi
+    if [[ $status != 2* ]]; then
+      echo "Got unexpected error code \"$status\" from Github. Try again later."
+      exit 1
+    fi
+    github_html_url=$(node -p -e "JSON.parse(JSON.stringify(${user})).html_url")
+    github_name=$(node -p -e "JSON.parse(JSON.stringify(${user})).name")
+    echo "Is this you, ${github_name}, - ${github_html_url}? ([Y/y/Nn])"
+    read yn
+    case $yn in
+        [Yy]* ) break;;
+        * ) continue;;
+    esac
+  done
+
+  git config --global user.github $username
+fi
 
 set +e
 verify=$(git rev-parse --quiet --verify ${new_branch})
 set -e
+
 if [ ! -z "$verify" ]; then echo 'The branch already exists!'; exit 1; fi
 
 url=$(git-remote-url)
-git checkout -b $new_branch > /dev/null
+git checkout -b "$username/$new_branch" > /dev/null
 staged=$(git diff --name-only --cached)
 git reset
 git commit -n --allow-empty -m "$new_branch"
