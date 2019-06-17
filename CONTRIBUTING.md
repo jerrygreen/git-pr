@@ -6,9 +6,9 @@
 
 ## Installation
 
-For local development/debugging use this:
-
 ```bash
-./install-pre-commit-hook.sh
+git clone git@github.com:JerryGreen/git-pr.git
+cd git-pr
 basher link . jerrygreen/git-pr
+./install-pre-commit-hook.sh
 ```

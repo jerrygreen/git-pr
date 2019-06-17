@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e
+
+url=$(git-remote-url)
+open ${url}/pulls

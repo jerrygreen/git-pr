@@ -5,7 +5,12 @@ set -e
 branch_arg=$1
 
 if [ -z "$branch_arg" ]; then
-  git-pr-open
+  current_branch=$(git-current-branch)
+  if [ "$current_branch" == "master" ]; then
+    git-pr-list
+  else
+    git-pr-open
+  fi
 else
   git-pr-new $1
 fi
