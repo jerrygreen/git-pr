@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -e
+
+rmt=${1:-origin}
+
+if ! git config --get remote.${rmt}.url &>/dev/null; then
+  printf "%s\n" "Error: not a valid remote name" && return 1
+fi
+
+url=`git config --get remote.${rmt}.url`
+
+[[ "$url" == git@* ]] \
+&& { url="https://github.com/${url##*:}" >&2; }; \
+{ url="${url%%.git}" >&2; };
+
+printf "%s\n" "$url"

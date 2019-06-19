@@ -1,11 +1,11 @@
 #!/bin/bash
 
-new_branch=$1
+branch=$1
 username=$(git config --global user.github)
 
 set -e
 
-if [ -z "$new_branch" ]; then echo 'Pass a new branch name as an argument!'; exit 1; fi
+if [ -z "$branch" ]; then echo 'Pass a new branch name as an argument!'; exit 1; fi
 
 if [ -z "$username" ]; then
   # echo 'Please, setup your github name with the following command:'
@@ -40,6 +40,8 @@ if [ -z "$username" ]; then
   git config --global user.github $username
 fi
 
+new_branch="$username/$branch"
+
 set +e
 verify=$(git rev-parse --quiet --verify ${new_branch})
 set -e
@@ -47,10 +49,13 @@ set -e
 if [ ! -z "$verify" ]; then echo 'The branch already exists!'; exit 1; fi
 
 url=$(git-remote-url)
-git checkout -b "$username/$new_branch" > /dev/null
+title=$(echo $(echo ${branch:0:1} | tr  '[a-z]' '[A-Z]')${branch:1} | tr _- +)
+commit_message=$(echo "$title" | tr + ' ')
+git checkout -b $new_branch > /dev/null
 staged=$(git diff --name-only --cached)
 git reset
-git commit -n --allow-empty -m "$new_branch"
+git commit -n --allow-empty -m "$commit_message"
 if [ "$staged" != "" ]; then git add $staged; fi
 git push --set-upstream origin $new_branch
-open ${url}/pull/new/${new_branch}
+
+open "${url}/compare/${new_branch}?expand=1&title=${title}"
